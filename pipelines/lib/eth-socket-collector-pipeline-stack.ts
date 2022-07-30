@@ -1,5 +1,5 @@
 import * as ecr from 'aws-cdk-lib/aws-ecr';
-import { App, Fn, Stack, StackProps } from 'aws-cdk-lib';
+import {App, CfnOutput, Duration, Fn, RemovalPolicy, Stack, StackProps} from 'aws-cdk-lib';
 import { GithubEcrPipeline } from './constructs/github-ecr-pipeline/github-ecr-construct';
 import * as s3 from 'aws-cdk-lib/aws-s3';
 
@@ -12,13 +12,17 @@ export class ETHSocketClientPipelineStack extends Stack {
 
     const { branchName } = props!;
 
-    const repositoryName = Fn.importValue('eth-socket-collector-repo');
-
-    const repository = ecr.Repository.fromRepositoryName(this, 'eth-socket-collector', repositoryName);
+    const repository = new ecr.Repository(this, 'eth-socket-collector', {
+      repositoryName: 'eth-socket-collector',
+      removalPolicy: RemovalPolicy.DESTROY
+    });
 
     const bucketName = Fn.importValue('artifact-bucket');
 
     const bucket = s3.Bucket.fromBucketName(this, 's3-bucket', bucketName);
+
+    repository.addLifecycleRule({ tagPrefixList: ['prod'], maxImageCount: 60 });
+    repository.addLifecycleRule({ maxImageAge: Duration.days(30) });
 
     const pipeline = new GithubEcrPipeline(this, 'eth-wss-client-pipeline', {
       ecrRepository: repository,
@@ -26,6 +30,11 @@ export class ETHSocketClientPipelineStack extends Stack {
       branchName: branchName,
       directoryName: 'services/eth-socket-client',
       artifactBucket: bucket
+    });
+
+    new CfnOutput(this, 'eth-socket-collector-repo', {
+      value: repository.repositoryName,
+      exportName: 'eth-socket-collector-repo',
     });
   }
 }
