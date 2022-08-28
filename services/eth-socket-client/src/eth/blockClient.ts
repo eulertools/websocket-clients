@@ -83,6 +83,7 @@ export const blockClient = (web3: any) => {
     });
 
   const isAlive = () => {
+    subscription._events.connected = [subscription._events.connected[0]]
     if (!web3.currentProvider.connected) {
       web3.setProvider(provider);
     }
