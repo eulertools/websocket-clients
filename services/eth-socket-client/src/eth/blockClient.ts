@@ -60,7 +60,7 @@ export const blockClient = (web3: any) => {
           })
           .catch((error: any) => {
             Sentry.captureException(
-              `Failed to fetch coins list, error occured ${JSON.stringify(error)}`
+              `Failed to fetch blockHeaders, error occured ${JSON.stringify(error)}`
             );
             throw error;
           });
