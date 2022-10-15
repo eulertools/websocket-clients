@@ -60,7 +60,7 @@ export const blockClient = (web3: any) => {
           })
           .catch((error: any) => {
             Sentry.captureException(
-              `Failed to fetch coins list, error occured ${JSON.stringify(error)}`
+              `Failed to fetch blockHeaders, error occured ${JSON.stringify(error)}`
             );
             throw error;
           });
@@ -83,6 +83,7 @@ export const blockClient = (web3: any) => {
     });
 
   const isAlive = () => {
+    subscription._events.connected = [subscription._events.connected[0]]
     if (!web3.currentProvider.connected) {
       web3.setProvider(provider);
     }
