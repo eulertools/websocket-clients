@@ -22,7 +22,7 @@ export class BinanceClientPipelineStack extends Stack {
     
     const pipeline = new GithubEcrPipeline(this, 'BinanceClientCodePipeline', {
       ecrRepository: repository,
-      githubRepo: 'service-clients',
+      githubRepo: 'websocket-clients',
       branchName: branchName,
       directoryName: 'services/binance-client',
       artifactBucket: bucket

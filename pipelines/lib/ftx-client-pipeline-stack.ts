@@ -22,7 +22,7 @@ export class FTXClientPipelineStack extends Stack {
 
     const pipeline = new GithubEcrPipeline(this, 'GithubEcrCodePipeline', {
       ecrRepository: repository,
-      githubRepo: 'service-clients',
+      githubRepo: 'websocket-clients',
       branchName: branchName,
       directoryName: 'services/ftx-client',
       artifactBucket: bucket

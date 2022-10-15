@@ -26,7 +26,7 @@ export class ETHSocketClientPipelineStack extends Stack {
 
     const pipeline = new GithubEcrPipeline(this, 'eth-wss-client-pipeline', {
       ecrRepository: repository,
-      githubRepo: 'service-clients',
+      githubRepo: 'websocket-clients',
       branchName: branchName,
       directoryName: 'services/eth-socket-client',
       artifactBucket: bucket
