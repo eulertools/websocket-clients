@@ -9,21 +9,21 @@ const branch = process.env.CDK_DEFAULT_ACCOUNT == '356783682912' ? 'development'
 
 new BinanceClientPipelineStack(app, 'binance-service-client-pipeline', {
   branchName: branch,
-  description: 'Data Collectors pipeline for the Binance Exchange',
-  tags: {exchange: 'binance', usage: 'service-clients'},
+  description: 'Websocket Client for the Binance Exchange',
+  tags: {exchange: 'binance', usage: 'websocket-client'},
   env: {account: process.env.CDK_DEFAULT_ACCOUNT, region: process.env.CDK_DEFAULT_REGION},
 });
 
 new FTXClientPipelineStack(app, 'ftx-service-client-pipeline', {
   branchName: branch,
-  description: 'Data Collectors for the Binance Exchange',
-  tags: {exchange: 'ftx', usage: 'service-clients'},
+  description: 'Websocket Client for the FTX Exchange',
+  tags: {exchange: 'ftx', usage: 'websocket-client'},
   env: {account: process.env.CDK_DEFAULT_ACCOUNT, region: process.env.CDK_DEFAULT_REGION},
 });
 
 new ETHSocketClientPipelineStack(app, 'evm-service-client-pipeline', {
   branchName: branch,
-  description: 'Data Collectors for the Binance Exchange',
-  tags: {exchange: 'eth', usage: 'service-clients'},
+  description: 'Websocket Client for the EVM Networks',
+  tags: {blockchain: 'eth', usage: 'service-clients'},
   env: {account: process.env.CDK_DEFAULT_ACCOUNT, region: process.env.CDK_DEFAULT_REGION},
 });

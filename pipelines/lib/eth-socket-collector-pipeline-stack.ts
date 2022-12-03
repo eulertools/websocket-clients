@@ -1,15 +1,7 @@
-import * as ecr from "aws-cdk-lib/aws-ecr";
-import {
-  App,
-  CfnOutput,
-  Duration,
-  Fn,
-  RemovalPolicy,
-  Stack,
-  StackProps,
-} from "aws-cdk-lib";
-import { GithubEcrPipeline } from "./constructs/github-ecr-pipeline/github-ecr-construct";
-import * as s3 from "aws-cdk-lib/aws-s3";
+import * as ecr from 'aws-cdk-lib/aws-ecr';
+import {App, CfnOutput, Duration, Fn, RemovalPolicy, Stack, StackProps} from 'aws-cdk-lib';
+import { GithubEcrPipeline } from './constructs/github-ecr-pipeline/github-ecr-construct';
+import * as s3 from 'aws-cdk-lib/aws-s3';
 import * as ssm from "aws-cdk-lib/aws-ssm";
 
 export interface PipelineStackProps extends StackProps {
@@ -21,10 +13,11 @@ export class ETHSocketClientPipelineStack extends Stack {
 
     const { branchName } = props!;
 
-    const repository = new ecr.Repository(this, "eth-socket-collector", {
-      repositoryName: "eth-socket-collector",
-      removalPolicy: RemovalPolicy.DESTROY,
+    const repository = new ecr.Repository(this, 'Repository', {
+      removalPolicy: RemovalPolicy.DESTROY
     });
+    repository.addLifecycleRule({ tagPrefixList: ['prod'], maxImageCount: 60 });
+    repository.addLifecycleRule({ maxImageAge: Duration.days(30) });
 
     // const bucketName = Fn.importValue("artifact-bucket");
 
@@ -32,19 +25,17 @@ export class ETHSocketClientPipelineStack extends Stack {
       removalPolicy: RemovalPolicy.DESTROY,
     });
 
-    repository.addLifecycleRule({ tagPrefixList: ["prod"], maxImageCount: 60 });
-    repository.addLifecycleRule({ maxImageAge: Duration.days(30) });
-
-    const pipeline = new GithubEcrPipeline(this, "eth-wss-client-pipeline", {
+    const pipeline = new GithubEcrPipeline(this, 'BinanceClientCodePipeline', {
       ecrRepository: repository,
       githubRepo: "websocket-clients",
       branchName: branchName,
-      directoryName: "services/eth-socket-client",
-      artifactBucket: bucket,
+      directoryName: 'services/binance-client',
+      artifactBucket: bucket
     });
 
-    new ssm.StringParameter(this, "ECRRepoParameter", {
-      parameterName: `/websocket-clients/evm-socket-collector`,
+    new ssm.StringParameter(this, 'StreamParameter', {
+      description: 'New UNIv2/v3 pairs Kinesis Stream ARN',
+      parameterName: `/repositories/websockets/evm-client`,
       stringValue: repository.repositoryName,
     });
 
