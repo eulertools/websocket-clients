@@ -1,7 +1,8 @@
-import { App, Fn, Stack, StackProps } from 'aws-cdk-lib';
+import {App, Duration, Fn, RemovalPolicy, Stack, StackProps} from 'aws-cdk-lib';
 import { GithubEcrPipeline } from './constructs/github-ecr-pipeline/github-ecr-construct';
 import * as ecr from 'aws-cdk-lib/aws-ecr';
 import * as s3 from 'aws-cdk-lib/aws-s3';
+import * as ssm from "aws-cdk-lib/aws-ssm";
 
 export interface PipelineStackProps extends StackProps {
   branchName: string;
@@ -12,20 +13,28 @@ export class FTXClientPipelineStack extends Stack {
 
     const { branchName } = props!;
 
-    const repositoryName = Fn.importValue('data-collectors-repo');
-
-    const repository = ecr.Repository.fromRepositoryName(this, 'ecrRepository', repositoryName);
+    const repository = new ecr.Repository(this, 'Repository', {
+      removalPolicy: RemovalPolicy.DESTROY
+    });
+    repository.addLifecycleRule({ tagPrefixList: ['prod'], maxImageCount: 60 });
+    repository.addLifecycleRule({ maxImageAge: Duration.days(30) });
 
     const bucketName = Fn.importValue('artifact-bucket');
 
     const bucket = s3.Bucket.fromBucketName(this, 's3-bucket', bucketName);
 
-    const pipeline = new GithubEcrPipeline(this, 'GithubEcrCodePipeline', {
+    const pipeline = new GithubEcrPipeline(this, 'BinanceClientCodePipeline', {
       ecrRepository: repository,
       githubRepo: 'websocket-clients',
       branchName: branchName,
-      directoryName: 'services/ftx-client',
+      directoryName: 'services/binance-client',
       artifactBucket: bucket
+    });
+
+    new ssm.StringParameter(this, 'StreamParameter', {
+      description: 'New UNIv2/v3 pairs Kinesis Stream ARN',
+      parameterName: `/repositories/websockets/ftx-client`,
+      stringValue: repository.repositoryName,
     });
   }
 }

@@ -1,6 +1,7 @@
-import { App, Fn, Stack, StackProps } from 'aws-cdk-lib';
+import {App, CfnOutput, Duration, Fn, RemovalPolicy, Stack, StackProps} from 'aws-cdk-lib';
 import { GithubEcrPipeline } from './constructs/github-ecr-pipeline/github-ecr-construct';
 import * as ecr from 'aws-cdk-lib/aws-ecr';
+import * as ssm from 'aws-cdk-lib/aws-ssm';
 import * as s3 from 'aws-cdk-lib/aws-s3';
 
 export interface PipelineStackProps extends StackProps {
@@ -12,9 +13,11 @@ export class BinanceClientPipelineStack extends Stack {
 
     const { branchName } = props!;
 
-    const repositoryName = Fn.importValue('data-collectors-repo');
-
-    const repository = ecr.Repository.fromRepositoryName(this, 'ecrRepository', repositoryName);
+    const repository = new ecr.Repository(this, 'Repository', {
+      removalPolicy: RemovalPolicy.DESTROY
+    });
+    repository.addLifecycleRule({ tagPrefixList: ['prod'], maxImageCount: 60 });
+    repository.addLifecycleRule({ maxImageAge: Duration.days(30) });
 
     const bucketName = Fn.importValue('artifact-bucket');
 
@@ -26,6 +29,12 @@ export class BinanceClientPipelineStack extends Stack {
       branchName: branchName,
       directoryName: 'services/binance-client',
       artifactBucket: bucket
+    });
+
+    new ssm.StringParameter(this, 'StreamParameter', {
+      description: 'New UNIv2/v3 pairs Kinesis Stream ARN',
+      parameterName: `/repositories/websockets/binance-client`,
+      stringValue: repository.repositoryName,
     });
   }
 }
