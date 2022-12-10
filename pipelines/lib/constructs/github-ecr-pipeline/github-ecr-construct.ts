@@ -11,22 +11,22 @@ import {
 } from 'aws-cdk-lib/aws-codebuild';
 import { BuildSpecContent } from './buildspec-content';
 import { SecretValue, Stack, StackProps } from 'aws-cdk-lib';
+import * as ssm from 'aws-cdk-lib/aws-ssm';
+import * as s3 from 'aws-cdk-lib/aws-s3';
 import { Construct } from 'constructs';
-import { IBucket } from 'aws-cdk-lib/aws-s3';
 
 interface PipelineProps extends StackProps {
   ecrRepository: IRepository;
   githubRepo: string;
   branchName: string;
   directoryName: string;
-  artifactBucket: IBucket;
 }
 
 export class GithubEcrPipeline extends Construct {
   constructor(stack: Stack, id: string, props?: PipelineProps) {
     super(stack, id);
 
-    const { ecrRepository, githubRepo, branchName, directoryName, artifactBucket } = props!;
+    const { ecrRepository, githubRepo, branchName, directoryName } = props!;
 
     const sourceOutput = new codepipeline.Artifact();
     const buildOutput = new codepipeline.Artifact();
@@ -85,8 +85,11 @@ export class GithubEcrPipeline extends Construct {
       outputs: [buildOutput],
     });
 
+    const bucketName = ssm.StringParameter.fromStringParameterName(this, 'BucketName', `SharedArtifactsBucket`).stringValue
+    const artifactBucket = s3.Bucket.fromBucketName(this, 'ArtifactsBucket', bucketName)
+
     const pipeline = new codepipeline.Pipeline(this, `${stack.stackName}-CodePipeline`, {
-      pipelineName: `${stack.stackName}-pipeline`,
+      pipelineName: `${stack.stackName}`,
       stages: [
         {
           stageName: 'Source',

@@ -21,7 +21,7 @@ export class ETHSocketClientPipelineStack extends Stack {
 
     // const bucketName = Fn.importValue("artifact-bucket");
 
-    const bucket = new s3.Bucket(this, "s3-bucket", {
+    const bucket = new s3.Bucket(this, "Bucket", {
       removalPolicy: RemovalPolicy.DESTROY,
     });
 
@@ -30,18 +30,12 @@ export class ETHSocketClientPipelineStack extends Stack {
       githubRepo: "websocket-clients",
       branchName: branchName,
       directoryName: 'services/binance-client',
-      artifactBucket: bucket
     });
 
-    new ssm.StringParameter(this, 'StreamParameter', {
-      description: 'New UNIv2/v3 pairs Kinesis Stream ARN',
+    new ssm.StringParameter(this, 'RepositorySSM', {
+      description: 'Repository for the Web3 Socket Client',
       parameterName: `/repositories/websockets/evm-client`,
       stringValue: repository.repositoryName,
-    });
-
-    new ssm.StringParameter(this, "ArtifactBucket", {
-      parameterName: `/websocket-clients/artifact-bucket`,
-      stringValue: bucket.bucketName,
     });
   }
 }
