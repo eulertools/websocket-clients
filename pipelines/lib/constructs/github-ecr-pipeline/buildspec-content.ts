@@ -12,7 +12,7 @@ export const BuildSpecContent = {
         'echo Entering into pre build stage',
         'echo Logging in to Amazon ECR...',
         'aws --version',
-        'aws ecr get-login-password --region $ACCOUNT_REGION | docker login --username AWS --password-stdin $ACCOUNT_ID.dkr.ecr.$ACCOUNT_REGION.amazonaws.com',
+        'aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com',
         'REPOSITORY_URI=$IMAGE_URI',
         'COMMIT_HASH=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)',
         'echo Pre Build Stage Completed',
