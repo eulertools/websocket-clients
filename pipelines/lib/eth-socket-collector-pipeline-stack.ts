@@ -1,7 +1,6 @@
 import * as ecr from 'aws-cdk-lib/aws-ecr';
 import { App, Duration, RemovalPolicy, Stack, StackProps } from 'aws-cdk-lib';
 import { GithubEcrPipeline } from './constructs/github-ecr-pipeline/github-ecr-construct';
-import * as s3 from 'aws-cdk-lib/aws-s3';
 import * as ssm from "aws-cdk-lib/aws-ssm";
 
 export interface PipelineStackProps extends StackProps {
@@ -19,12 +18,6 @@ export class ETHSocketClientPipelineStack extends Stack {
     });
     repository.addLifecycleRule({tagPrefixList: ['prod'], maxImageCount: 60});
     repository.addLifecycleRule({maxImageAge: Duration.days(30)});
-
-    // const bucketName = Fn.importValue("artifact-bucket");
-
-    const bucket = new s3.Bucket(this, "Bucket", {
-      removalPolicy: RemovalPolicy.DESTROY,
-    });
 
     const pipeline = new GithubEcrPipeline(this, 'BinanceClientCodePipeline', {
       ecrRepository: repository,

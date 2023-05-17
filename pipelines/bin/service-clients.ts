@@ -10,12 +10,12 @@ new BinanceClientPipelineStack(app, 'BinanceSocketClient', {
   branchName: branch,
   description: 'Websocket Client for the Binance Exchange',
   tags: {exchange: 'binance', usage: 'websocket-client'},
-  env: {account: process.env.CDK_DEFAULT_ACCOUNT, region: process.env.CDK_DEFAULT_REGION},
+  env: {account: process.env.CDK_DEFAULT_ACCOUNT},
 });
 
 new ETHSocketClientPipelineStack(app, 'EvmSocketClient', {
   branchName: branch,
   description: 'Websocket Client for the EVM Networks',
   tags: {blockchain: 'eth', usage: 'service-clients'},
-  env: {account: process.env.CDK_DEFAULT_ACCOUNT, region: process.env.CDK_DEFAULT_REGION},
+  env: {account: process.env.CDK_DEFAULT_ACCOUNT},
 });
